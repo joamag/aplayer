@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 	// opens it for the current execution
     AVCodec *codec = avcodec_find_decoder(codec_ctx->codec_id);
     if(codec == NULL) { die("cannot find codec!"); }
-    if(avcodec_open(codec_ctx, codec) < 0) { die("Codec cannot be found"); }
+    if(avcodec_open2(codec_ctx, codec, NULL) < 0) { die("Codec cannot be found"); }
 
     //initialize AO lib
     ao_initialize();
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
     sformat.byte_format = AO_FMT_NATIVE;
     sformat.matrix = 0;
 
-    ao_device *adevice=ao_open_live(driver,&sformat,NULL);
+    ao_device *adevice = ao_open_live(driver, &sformat, NULL);
     //end of init AO LIB
 
 	// allocates the buffer to be used in the packet for the
@@ -157,12 +157,12 @@ int main(int argc, char **argv) {
 		// the current codec context and in case the frame is
 		// not finished continues the loop, otherwise plays the
 		// frame using the ao library
-        int len = avcodec_decode_audio4(codec_ctx, frame, &frameFinished, &packet);
+        avcodec_decode_audio4(codec_ctx, frame, &frameFinished, &packet);
 		if(!frameFinished) { continue; }
 		ao_play(adevice, (char *) frame->extended_data[0], frame->linesize[0]);
     }
 
-    av_close_input_file(container);
+    avformat_close_input(&container);
     ao_shutdown();
     return 0;
 }
