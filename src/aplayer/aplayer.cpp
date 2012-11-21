@@ -44,7 +44,12 @@ int main(int argc, char **argv) {
 	// starts the registration of the audio subsystem
 	// by registering all the resources
 	av_register_all();
+
+#ifdef _DEBUG
+	av_log_set_level(AV_LOG_DEBUG);
+#else
 	av_log_set_level(AV_LOG_ERROR);
+#endif
 
 	// creates a new format (file container) context to be
 	// used to detect the kind of file in use
