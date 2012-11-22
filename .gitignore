@@ -5,3 +5,5 @@
 
 bin
 win32/vs2008ex/*/*
+darwin/xcode4/aplayer.xcodeproj/xcuserdata/
+darwin/xcode4/aplayer.xcodeproj/project.xcworkspace/xcuserdata/
