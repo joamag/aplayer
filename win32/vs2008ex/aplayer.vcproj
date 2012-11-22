@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\aplayer\extension.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\aplayer\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -202,6 +206,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\src\aplayer\extension.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\src\aplayer\stdafx.h"
 				>
