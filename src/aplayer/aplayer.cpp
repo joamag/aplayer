@@ -32,6 +32,39 @@ void die(const char *msg) {
     exit(1);
 }
 
+ao_device *init_ao(AVCodecContext *codec_ctx) {
+    ao_initialize();
+    int driver = ao_default_driver_id();
+
+    ao_sample_format sformat;
+    AVSampleFormat sample_format = codec_ctx->sample_fmt;
+	switch(sample_format) {
+		case AV_SAMPLE_FMT_U8:
+			sformat.bits = 8;
+			break;
+
+		case AV_SAMPLE_FMT_S16:
+			sformat.bits = 16;
+			break;
+
+		case AV_SAMPLE_FMT_S32:
+			sformat.bits = 32;
+			break;
+
+		default:
+			sformat.bits = 8;
+			break;
+	}
+
+    sformat.channels = codec_ctx->channels;
+    sformat.rate = codec_ctx->sample_rate;
+    sformat.byte_format = AO_FMT_NATIVE;
+    sformat.matrix = 0;
+
+    ao_device *adevice = ao_open_live(driver, &sformat, NULL);
+	return adevice;
+}
+
 int main(int argc, char **argv) {
 	// in case not enough arguments have been provided
 	// must exit the process immediately
@@ -85,6 +118,8 @@ int main(int argc, char **argv) {
     }
 	if(stream_id == -1) { die("Could not find Audio Stream"); }
 
+	// retrieves the codec context associted with the audio stream
+	// that was just discovered
     AVCodecContext *codec_ctx = container->streams[stream_id]->codec;
 
 	// tries to find the codec for the current codec context and
@@ -93,37 +128,9 @@ int main(int argc, char **argv) {
     if(codec == NULL) { die("cannot find codec!"); }
     if(avcodec_open2(codec_ctx, codec, NULL) < 0) { die("Codec cannot be found"); }
 
-    //initialize AO lib
-    ao_initialize();
-    int driver = ao_default_driver_id();
-
-    ao_sample_format sformat;
-    AVSampleFormat sample_format = codec_ctx->sample_fmt;
-	switch(sample_format) {
-		case AV_SAMPLE_FMT_U8:
-			sformat.bits = 8;
-			break;
-
-		case AV_SAMPLE_FMT_S16:
-			sformat.bits = 16;
-			break;
-
-		case AV_SAMPLE_FMT_S32:
-			sformat.bits = 32;
-			break;
-
-		default:
-			sformat.bits = 8;
-			break;
-	}
-
-    sformat.channels = codec_ctx->channels;
-    sformat.rate = codec_ctx->sample_rate;
-    sformat.byte_format = AO_FMT_NATIVE;
-    sformat.matrix = 0;
-
-    ao_device *adevice = ao_open_live(driver, &sformat, NULL);
-    //end of init AO LIB
+	// initializes the ao structure creating the device associated
+	// with the created structures this is going to be used
+	ao_device *adevice = init_ao(codec_ctx);
 
 	// allocates the buffer to be used in the packet for the
 	// unpacking of the various packets
@@ -162,7 +169,14 @@ int main(int argc, char **argv) {
 		ao_play(adevice, (char *) frame->extended_data[0], frame->linesize[0]);
     }
 
+	// closes the av associated structures including
+	// the codec and the container file
+	avcodec_close(codec_ctx);
     avformat_close_input(&container);
+
+	// closes the ao related structures that includes
+	// the device and the global structures
+	ao_close(adevice);
     ao_shutdown();
     return 0;
 }
