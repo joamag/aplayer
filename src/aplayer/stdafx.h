@@ -35,13 +35,10 @@
 #include <math.h>
 
 extern "C" {
-#ifndef __STDC_CONSTANT_MACROS
-#  define __STDC_CONSTANT_MACROS
-#endif
-#include <libavutil/mathematics.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <ao/ao.h>
+    #include <libavutil/mathematics.h>
+    #include <libavformat/avformat.h>
+    #include <libswscale/swscale.h>
+    #include <ao/ao.h>
 }
 
 #pragma comment(lib, "avformat.lib")

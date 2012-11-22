@@ -31,3 +31,6 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
