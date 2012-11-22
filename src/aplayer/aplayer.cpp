@@ -30,7 +30,6 @@
 #include "aplayer.h"
 
 ao_device *init_ao(AVCodecContext *codec_ctx) {
-    ao_initialize();
     int driver = ao_default_driver_id();
 
     ao_sample_format sformat;
@@ -58,11 +57,15 @@ ao_device *init_ao(AVCodecContext *codec_ctx) {
     sformat.byte_format = AO_FMT_NATIVE;
     sformat.matrix = 0;
 
-    ao_device *adevice = ao_open_live(driver, &sformat, NULL);
-	return adevice;
+    ao_device *device = ao_open_live(driver, &sformat, NULL);
+	return device;
 }
 
-int play(const char *filename) {
+int register_aplayer() {
+	// starts the audio relates structures, allowing
+	// sound to be "played"
+    ao_initialize();
+
 	// starts the registration of the audio subsystem
 	// by registering all the resources
 	av_register_all();
@@ -73,6 +76,18 @@ int play(const char *filename) {
 	av_log_set_level(AV_LOG_ERROR);
 #endif
 
+	return 0;
+}
+
+int unregister_aplayer() {
+	// shutdowns the audio related structures, this should
+	// avoid leaks in that subsystem
+	ao_shutdown();
+
+	return 0;
+}
+
+int open_aplayer(const char *filename, struct aplayer_t *player) {
 	// creates a new format (file container) context to be
 	// used to detect the kind of file in use
     AVFormatContext *container = avformat_alloc_context();
@@ -86,7 +101,7 @@ int play(const char *filename) {
 #ifdef _DEBUG
 	// dumps the format information to the standard outpu
 	// this should print information on the container file
-    av_dump_format(container, 0, input_filename, false);
+    av_dump_format(container, 0, filename, false);
 #endif
 
 	// starts the (audio) stream id with an invalid value and then
@@ -119,7 +134,7 @@ int play(const char *filename) {
 
 	// initializes the ao structure creating the device associated
 	// with the created structures this is going to be used
-	ao_device *adevice = init_ao(codec_ctx);
+	ao_device *device = init_ao(codec_ctx);
 
 	// allocates the buffer to be used in the packet for the
 	// unpacking of the various packets
@@ -128,39 +143,32 @@ int play(const char *filename) {
 	// creates the packet structure to be used and initializes
 	// it, this is going to be the payload for each iteration
 	// then sets its data and size
-    AVPacket packet;
-    av_init_packet(&packet);
-    packet.data = buffer;
-    packet.size = AVCODEC_MAX_AUDIO_FRAME_SIZE + FF_INPUT_BUFFER_PADDING_SIZE;
+    av_init_packet(&player->packet);
+    player->packet.data = buffer;
+    player->packet.size = AVCODEC_MAX_AUDIO_FRAME_SIZE + FF_INPUT_BUFFER_PADDING_SIZE;
 
 	// allocates a new frame structure to be used for the audio
 	// frames in iteration
 	AVFrame *frame = avcodec_alloc_frame();
 
-	// initializes the flag indicating if the frame processing
-	// has been finished and then iterates over the various packets
-	// to try to decode the various frames
-    int frame_finished = 0;
-    while(1) {
-		// reads a frame from the container file and check
-		// if a valid one was returned in case not breaks
-		// the loop (end of the file)
-		int result = av_read_frame(container, &packet);
-		if(result < 0) { break; }
+	// updates the player structure with all the attributes that
+	// were retrieved for the current context
+	player->device = device;
+	player->stream_id = stream_id;
+	player->frame = frame;
+	player->container = container;
+	player->codec_ctx = codec_ctx;
 
-		// checks if the stream index of the current packet
-		// is the same as the just detected audio stream
-		if(packet.stream_index != stream_id) { continue; }
+	return 0;
+}
 
-		// decodes the current packet as an audio packed with
-		// the current codec context and in case the frame is
-		// not finished continues the loop, otherwise plays the
-		// frame using the ao library
-        avcodec_decode_audio4(codec_ctx, frame, &frame_finished, &packet);
-		if(!frame_finished) { continue; }
-		ao_play(adevice, (char *) frame->extended_data[0], frame->linesize[0]);
-		av_free_packet(&packet);
-    }
+void close_aplayer(struct aplayer_t *player) {
+	// unpacks the various attributes from the player
+	// structure that are going to be used
+	ao_device *device = player->device;
+	AVFrame *frame = player->frame;
+	AVFormatContext *container = player->container;
+	AVCodecContext *codec_ctx = player->codec_ctx;
 
 	// releases the structure that holds the frame
 	// no need to used it anymore
@@ -173,9 +181,73 @@ int play(const char *filename) {
 
 	// closes the ao related structures that includes
 	// the device and the global structures
-	ao_close(adevice);
-    ao_shutdown();
+	ao_close(device);
+}
+
+int play_aplayer(struct aplayer_t *player) {
+	// unpacks the various attributes from the player
+	// structure that are going to be used
+	ao_device *device = player->device;
+	int stream_id = player->stream_id;
+	AVFrame *frame = player->frame;
+	AVFormatContext *container = player->container;
+	AVCodecContext *codec_ctx = player->codec_ctx;
+
+	// sets the running flag so that the player starts
+	// in that state
+	player->running = 1;
+
+	// initializes the flag indicating if the frame processing
+	// has been finished and then iterates over the various packets
+	// to try to decode the various frames
+    int frame_finished = 0;
+
+	for(int i = 0; i < 300; i++) {
+    //while(player->running) {
+		// reads a frame from the container file and check
+		// if a valid one was returned in case not breaks
+		// the loop (end of the file)
+		int result = av_read_frame(container, &player->packet);
+		if(result < 0) { break; }
+
+		// checks if the stream index of the current packet
+		// is the same as the just detected audio stream
+		if(player->packet.stream_index != stream_id) { continue; }
+
+		// decodes the current packet as an audio packed with
+		// the current codec context and in case the frame is
+		// not finished continues the loop, otherwise plays the
+		// frame using the ao library
+        avcodec_decode_audio4(codec_ctx, frame, &frame_finished, &player->packet);
+		if(!frame_finished) { continue; }
+		ao_play(device, (char *) frame->extended_data[0], frame->linesize[0]);
+		av_free_packet(&player->packet);
+    }
+
     return 0;
+}
+
+int pause_aplayer(struct aplayer_t *player) {
+	player->running = 0;
+	return 0;
+}
+
+int stop_aplayer(struct aplayer_t *player) {
+	player->running = 0;
+	av_seek_frame(player->container, player->stream_id, 0, AVSEEK_FLAG_BACKWARD);
+	return 0;
+}
+
+int seek_aplayer(struct aplayer_t *player, int64_t timestamp) {
+	timestamp = (int64_t) (timestamp * AV_TIME_BASE);
+	AVRational rational = {1, AV_TIME_BASE};
+	timestamp = av_rescale_q(timestamp, rational, player->container->streams[player->stream_id]->time_base);
+
+	printf("%d", timestamp);
+
+	av_seek_frame(player->container, player->stream_id, timestamp, AVSEEK_FLAG_ANY);
+	printf("fez seek");
+	return 0;
 }
 
 int main(int argc, char **argv) {
@@ -187,7 +259,22 @@ int main(int argc, char **argv) {
 	// as the first argument from the command line
     const char *input_filename = argv[1];
 
+	// registers the aplayer structures, starting both
+	// the hardware and logical "items"
+	register_aplayer();
+
 	// starts the play operation using the provided
 	// input filename as the file path to be used
-	return play(input_filename);
+	struct aplayer_t player;
+	open_aplayer(input_filename, &player);
+	play_aplayer(&player);
+	seek_aplayer(&player, 3);
+	play_aplayer(&player);
+	close_aplayer(&player);
+
+	// unregisters th aplayer structures, stopping both
+	// the hardware and logical "items"
+	unregister_aplayer();
+
+	return 0;
 }

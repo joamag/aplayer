@@ -36,6 +36,6 @@ extern "C" {
 	#include <Python.h>
 }
 
-#pragma comment(lib, "python25.lib")
-
+PyObject *extension_register(PyObject *self, PyObject *args);
+PyObject *extension_unregister(PyObject *self, PyObject *args);
 PyObject *extension_play(PyObject *self, PyObject *args);

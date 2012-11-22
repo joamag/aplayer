@@ -29,11 +29,23 @@
 
 #include "extension.h"
 
-PyMethodDef aplayer_functions[3] = {
+PyMethodDef aplayer_functions[4] = {
     {
         "play",
         extension_play,
         METH_VARARGS,
+        NULL
+    },
+    {
+        "register",
+        extension_play,
+        METH_NOARGS,
+        NULL
+    },
+    {
+        "unregister",
+        extension_play,
+        METH_NOARGS,
         NULL
     },
     {
@@ -44,13 +56,32 @@ PyMethodDef aplayer_functions[3] = {
     }
 };
 
+PyObject *extension_register(PyObject *self, PyObject *args) {
+	// registers the aplayer structures, starting both
+	// the hardware and logical "items"
+	register_aplayer();
+
+    Py_RETURN_NONE;
+};
+
+PyObject *extension_unregister(PyObject *self, PyObject *args) {
+	// unregisters th aplayer structures, stopping both
+	// the hardware and logical "items"
+	unregister_aplayer();
+
+    Py_RETURN_NONE;
+};
+
 PyObject *extension_play(PyObject *self, PyObject *args) {
 	char *filename;
 
 	if(PyArg_ParseTuple(args, "s", &filename) == 0) { return NULL; }
 
 	Py_BEGIN_ALLOW_THREADS
-	play(filename);
+	struct aplayer_t player;
+	open_aplayer(filename, &player);
+	play_aplayer(&player);
+	close_aplayer(&player);
 	Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
@@ -65,4 +96,8 @@ PyMODINIT_FUNC initaplayer(void) {
 	// functions defined in the previous array
     aplayer_module = Py_InitModule("aplayer", aplayer_functions);
 	if(aplayer_module == NULL) { return; }
+
+	// runs the registeration of the aplayer structures
+	// this could be run manually using the register function
+	register_aplayer();
 }
