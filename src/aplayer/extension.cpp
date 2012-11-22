@@ -29,7 +29,7 @@
 
 #include "extension.h"
 
-PyMethodDef wsgi_methods[3] = {
+PyMethodDef aplayer_functions[3] = {
     {
         "play",
         extension_play,
@@ -45,5 +45,21 @@ PyMethodDef wsgi_methods[3] = {
 };
 
 PyObject *extension_play(PyObject *self, PyObject *args) {
-	return NULL;
+	char *filename;
+
+	if(PyArg_ParseTuple(args, "s", &filename) == 0) { return NULL; }
+	play(filename);
+
+    Py_RETURN_NONE;
 };
+
+PyMODINIT_FUNC initaplayer(void) {
+    // allocates space for the module object to hold the
+	// module to be created
+    PyObject *aplayer_module;
+
+    // creates the aplayer extension module with the
+	// functions defined in the previous array
+    aplayer_module = Py_InitModule("aplayer", aplayer_functions);
+	if(aplayer_module == NULL) { return; }
+}

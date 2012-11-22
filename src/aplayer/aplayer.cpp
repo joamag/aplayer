@@ -27,10 +27,7 @@
 
 #include "stdafx.h"
 
-void die(const char *msg) {
-    fprintf(stderr, "%s\n", msg);
-    exit(1);
-}
+#include "aplayer.h"
 
 ao_device *init_ao(AVCodecContext *codec_ctx) {
     ao_initialize();
@@ -65,15 +62,7 @@ ao_device *init_ao(AVCodecContext *codec_ctx) {
 	return adevice;
 }
 
-int main(int argc, char **argv) {
-	// in case not enough arguments have been provided
-	// must exit the process immediately
-	if(argc < 2) { die("A file name must be provided"); }
-
-	// retrieves the name of the file to be executed
-	// as the first argument from the command line
-    const char *input_filename = argv[1];
-
+int play(const char *filename) {
 	// starts the registration of the audio subsystem
 	// by registering all the resources
 	av_register_all();
@@ -87,11 +76,11 @@ int main(int argc, char **argv) {
 	// creates a new format (file container) context to be
 	// used to detect the kind of file in use
     AVFormatContext *container = avformat_alloc_context();
-    if(avformat_open_input(&container, input_filename, NULL, NULL) < 0) {
-        die("Could not open file");
+    if(avformat_open_input(&container, filename, NULL, NULL) < 0) {
+        WARN("Could not open file");
     }
     if(avformat_find_stream_info(container, NULL) < 0) {
-        die("Could not find file info");
+        WARN("Could not find file info");
     }
 
 #ifdef _DEBUG
@@ -116,7 +105,7 @@ int main(int argc, char **argv) {
 		stream_id = index;
         break;
     }
-	if(stream_id == -1) { die("Could not find Audio Stream"); }
+	if(stream_id == -1) { WARN("Could not find Audio Stream"); }
 
 	// retrieves the codec context associted with the audio stream
 	// that was just discovered
@@ -125,8 +114,8 @@ int main(int argc, char **argv) {
 	// tries to find the codec for the current codec context and
 	// opens it for the current execution
     AVCodec *codec = avcodec_find_decoder(codec_ctx->codec_id);
-    if(codec == NULL) { die("cannot find codec!"); }
-    if(avcodec_open2(codec_ctx, codec, NULL) < 0) { die("Codec cannot be found"); }
+    if(codec == NULL) { WARN("Cannot find codec!"); }
+    if(avcodec_open2(codec_ctx, codec, NULL) < 0) { WARN("Codec cannot be found"); }
 
 	// initializes the ao structure creating the device associated
 	// with the created structures this is going to be used
@@ -187,4 +176,18 @@ int main(int argc, char **argv) {
 	ao_close(adevice);
     ao_shutdown();
     return 0;
+}
+
+int main(int argc, char **argv) {
+	// in case not enough arguments have been provided
+	// must exit the process immediately
+	if(argc < 2) { DIE("A file name must be provided"); }
+
+	// retrieves the name of the file to be executed
+	// as the first argument from the command line
+    const char *input_filename = argv[1];
+
+	// starts the play operation using the provided
+	// input filename as the file path to be used
+	return play(input_filename);
 }

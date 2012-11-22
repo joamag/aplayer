@@ -27,15 +27,10 @@
 
 #pragma once
 
-#define PYTHON_26
-#define PYTHON_THREADS
+#define DIE(msg) fprintf(stderr, "%s\n", msg);\
+    exit(1)
 
-#include "aplayer.h"
+#define WARN(msg) fprintf(stderr, "%s\n", msg);\
+    return 1
 
-extern "C" {
-	#include <Python.h>
-}
-
-#pragma comment(lib, "python25.lib")
-
-PyObject *extension_play(PyObject *self, PyObject *args);
+int play(const char *filename);

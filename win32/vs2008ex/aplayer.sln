@@ -5,12 +5,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aplayer", "aplayer.vcproj",
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (Python)|Win32 = Debug (Python)|Win32
 		Debug|Win32 = Debug|Win32
+		Release (Python)|Win32 = Release (Python)|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Debug (Python)|Win32.ActiveCfg = Debug (Python)|Win32
+		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Debug (Python)|Win32.Build.0 = Debug (Python)|Win32
 		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Debug|Win32.Build.0 = Debug|Win32
+		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Release (Python)|Win32.ActiveCfg = Release (Python)|Win32
+		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Release (Python)|Win32.Build.0 = Release (Python)|Win32
 		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Release|Win32.ActiveCfg = Release|Win32
 		{F705E4FF-A917-4C1E-BA80-8A8F1434631F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
