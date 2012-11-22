@@ -48,7 +48,10 @@ PyObject *extension_play(PyObject *self, PyObject *args) {
 	char *filename;
 
 	if(PyArg_ParseTuple(args, "s", &filename) == 0) { return NULL; }
+
+	Py_BEGIN_ALLOW_THREADS
 	play(filename);
+	Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 };
