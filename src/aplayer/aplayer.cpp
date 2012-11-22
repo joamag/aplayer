@@ -140,7 +140,7 @@ int play(const char *filename) {
 	// initializes the flag indicating if the frame processing
 	// has been finished and then iterates over the various packets
 	// to try to decode the various frames
-    int frameFinished = 0;
+    int frame_finished = 0;
     while(1) {
 		// reads a frame from the container file and check
 		// if a valid one was returned in case not breaks
@@ -156,8 +156,8 @@ int play(const char *filename) {
 		// the current codec context and in case the frame is
 		// not finished continues the loop, otherwise plays the
 		// frame using the ao library
-        avcodec_decode_audio4(codec_ctx, frame, &frameFinished, &packet);
-		if(!frameFinished) { continue; }
+        avcodec_decode_audio4(codec_ctx, frame, &frame_finished, &packet);
+		if(!frame_finished) { continue; }
 		ao_play(adevice, (char *) frame->extended_data[0], frame->linesize[0]);
 		av_free_packet(&packet);
     }
