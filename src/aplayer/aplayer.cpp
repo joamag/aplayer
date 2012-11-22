@@ -114,7 +114,7 @@ int play(const char *filename) {
 	// tries to find the codec for the current codec context and
 	// opens it for the current execution
     AVCodec *codec = avcodec_find_decoder(codec_ctx->codec_id);
-    if(codec == NULL) { WARN("Cannot find codec!"); }
+    if(codec == NULL) { WARN("Cannot find codec"); }
     if(avcodec_open2(codec_ctx, codec, NULL) < 0) { WARN("Codec cannot be found"); }
 
 	// initializes the ao structure creating the device associated
