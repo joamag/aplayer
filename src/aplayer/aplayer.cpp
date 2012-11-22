@@ -148,6 +148,9 @@ int main(int argc, char **argv) {
 	// frames in iteration
 	AVFrame *frame = avcodec_alloc_frame();
 
+	// initializes the flag indicating if the frame processing
+	// has been finished and then iterates over the various packets
+	// to try to decode the various frames
     int frameFinished = 0;
     while(1) {
 		// reads a frame from the container file and check
@@ -167,7 +170,12 @@ int main(int argc, char **argv) {
         avcodec_decode_audio4(codec_ctx, frame, &frameFinished, &packet);
 		if(!frameFinished) { continue; }
 		ao_play(adevice, (char *) frame->extended_data[0], frame->linesize[0]);
+		av_free_packet(&packet);
     }
+
+	// releases the structure that holds the frame
+	// no need to used it anymore
+	av_free(frame);
 
 	// closes the av associated structures including
 	// the codec and the container file
