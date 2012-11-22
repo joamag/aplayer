@@ -149,7 +149,7 @@ int play(const char *filename) {
 		if(result < 0) { break; }
 
 		// checks if the stream index of the current packet
-		// is the same as the just detected audion stream
+		// is the same as the just detected audio stream
 		if(packet.stream_index != stream_id) { continue; }
 
 		// decodes the current packet as an audio packed with
