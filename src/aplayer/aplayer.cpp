@@ -239,14 +239,14 @@ int stop_aplayer(struct aplayer_t *player) {
 }
 
 int seek_aplayer(struct aplayer_t *player, int64_t timestamp) {
-	timestamp = (int64_t) (timestamp * AV_TIME_BASE);
-	AVRational rational = {1, AV_TIME_BASE};
-	timestamp = av_rescale_q(timestamp, rational, player->container->streams[player->stream_id]->time_base);
-
-	printf("%d", timestamp);
+	AVRational rational = { 1, AV_TIME_BASE };
+    AVStream *stream = player->container->streams[player->stream_id];
+    
+	timestamp = av_rescale_q(
+        timestamp * AV_TIME_BASE, rational, stream->time_base
+    );
 
 	av_seek_frame(player->container, player->stream_id, timestamp, AVSEEK_FLAG_ANY);
-	printf("fez seek");
 	return 0;
 }
 
@@ -268,7 +268,7 @@ int main(int argc, char **argv) {
 	struct aplayer_t player;
 	open_aplayer(input_filename, &player);
 	play_aplayer(&player);
-	seek_aplayer(&player, 3);
+	seek_aplayer(&player, 160);
 	play_aplayer(&player);
 	close_aplayer(&player);
 
