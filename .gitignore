@@ -3,7 +3,7 @@
 *.suo
 .DS_Store
 
-bin
-win32/vs2008ex/*/*
-darwin/xcode4/aplayer.xcodeproj/xcuserdata/
-darwin/xcode4/aplayer.xcodeproj/project.xcworkspace/xcuserdata/
+/bin
+/win32/vs2008ex/*/*
+/darwin/xcode4/aplayer.xcodeproj/xcuserdata/
+/darwin/xcode4/aplayer.xcodeproj/project.xcworkspace/xcuserdata/
