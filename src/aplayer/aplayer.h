@@ -17,7 +17,7 @@
  You should have received a copy of the GNU General Public License
  along with Hive Audio Player. If not, see <http://www.gnu.org/licenses/>.
 
- __author__    = Jo„o Magalh„es <joamag@hive.pt>
+ __author__    = Jo√£o Magalh√£es <joamag@hive.pt>
  __version__   = 1.0.0
  __revision__  = $LastChangedRevision$
  __date__      = $LastChangedDate$
@@ -34,47 +34,47 @@
     return 1
 
 typedef struct aplayer_t {
-	/**
-	 * The reference to the logical device to be used
-	 * in the playing of the sound.
-	 */
-	ao_device *device;
+    /**
+     * The reference to the logical device to be used
+     * in the playing of the sound.
+     */
+    ao_device *device;
 
-	/**
-	 * The identifier of the "first" stream that contains
-	 * an audio track.
-	 */
-	int stream_id;
+    /**
+     * The identifier of the "first" stream that contains
+     * an audio track.
+     */
+    int stream_id;
 
-	/**
-	 * The packet structure value to be used in each of the
-	 * iterations to store packet information.
-	 */ 
-	AVPacket packet;
-	
-	/**
-	 * The reference to the frame structure value to be used in
-	 * each of the iterations to store frame information.
-	 */
-	AVFrame *frame;
+    /**
+     * The packet structure value to be used in each of the
+     * iterations to store packet information.
+     */
+    AVPacket packet;
 
-	/**
-	 * The reference to the container structure that contains
-	 * information on the container file.
-	 */
-	AVFormatContext *container;
+    /**
+     * The reference to the frame structure value to be used in
+     * each of the iterations to store frame information.
+     */
+    AVFrame *frame;
+
+    /**
+     * The reference to the container structure that contains
+     * information on the container file.
+     */
+    AVFormatContext *container;
 
     /**
      * The current codec context to be used that stores
-	 * information on the current status, position and codec.
-	 */
-	AVCodecContext *codec_ctx;
+     * information on the current status, position and codec.
+     */
+    AVCodecContext *codec_ctx;
 
-	/**
-	 * Flag that controlls if the player is currently running
-	 * note that the changing of this value must be atomic.
-	 */
-	int running;
+    /**
+     * Flag that controlls if the player is currently running
+     * note that the changing of this value must be atomic.
+     */
+    int running;
 } aplayer;
 
 int register_aplayer();

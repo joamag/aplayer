@@ -17,7 +17,7 @@
  You should have received a copy of the GNU General Public License
  along with Hive Audio Player. If not, see <http://www.gnu.org/licenses/>.
 
- __author__    = Jo„o Magalh„es <joamag@hive.pt>
+ __author__    = Jo√£o Magalh√£es <joamag@hive.pt>
  __version__   = 1.0.0
  __revision__  = $LastChangedRevision$
  __date__      = $LastChangedDate$
@@ -57,47 +57,47 @@ PyMethodDef aplayer_functions[4] = {
 };
 
 PyObject *extension_register(PyObject *self, PyObject *args) {
-	// registers the aplayer structures, starting both
-	// the hardware and logical "items"
-	register_aplayer();
+    // registers the aplayer structures, starting both
+    // the hardware and logical "items"
+    register_aplayer();
 
     Py_RETURN_NONE;
 };
 
 PyObject *extension_unregister(PyObject *self, PyObject *args) {
-	// unregisters th aplayer structures, stopping both
-	// the hardware and logical "items"
-	unregister_aplayer();
+    // unregisters th aplayer structures, stopping both
+    // the hardware and logical "items"
+    unregister_aplayer();
 
     Py_RETURN_NONE;
 };
 
 PyObject *extension_play(PyObject *self, PyObject *args) {
-	char *filename;
+    char *filename;
 
-	if(PyArg_ParseTuple(args, "s", &filename) == 0) { return NULL; }
+    if(PyArg_ParseTuple(args, "s", &filename) == 0) { return NULL; }
 
-	Py_BEGIN_ALLOW_THREADS
-	struct aplayer_t player;
-	open_aplayer(filename, &player);
-	play_aplayer(&player);
-	close_aplayer(&player);
-	Py_END_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS
+    struct aplayer_t player;
+    open_aplayer(filename, &player);
+    play_aplayer(&player);
+    close_aplayer(&player);
+    Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 };
 
 PyMODINIT_FUNC initaplayer(void) {
     // allocates space for the module object to hold the
-	// module to be created
+    // module to be created
     PyObject *aplayer_module;
 
     // creates the aplayer extension module with the
-	// functions defined in the previous array
+    // functions defined in the previous array
     aplayer_module = Py_InitModule("aplayer", aplayer_functions);
-	if(aplayer_module == NULL) { return; }
+    if(aplayer_module == NULL) { return; }
 
-	// runs the registeration of the aplayer structures
-	// this could be run manually using the register function
-	register_aplayer();
+    // runs the registeration of the aplayer structures
+    // this could be run manually using the register function
+    register_aplayer();
 }

@@ -17,7 +17,7 @@
  You should have received a copy of the GNU General Public License
  along with Hive Audio Player. If not, see <http://www.gnu.org/licenses/>.
 
- __author__    = Jo„o Magalh„es <joamag@hive.pt>
+ __author__    = Jo√£o Magalh√£es <joamag@hive.pt>
  __version__   = 1.0.0
  __revision__  = $LastChangedRevision$
  __date__      = $LastChangedDate$
@@ -33,7 +33,7 @@
 #include "aplayer.h"
 
 extern "C" {
-	#include <Python.h>
+    #include <Python.h>
 }
 
 PyObject *extension_register(PyObject *self, PyObject *args);
